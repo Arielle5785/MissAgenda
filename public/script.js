@@ -1,60 +1,46 @@
 let tasks = [];
 
-document.addEventListener("DOMContentLoaded", () => {
-    const taskForm = document.getElementById("taskForm");
-    const submitButton = document.getElementById("submitTaskButton");
-    const clearButton = document.getElementById("clearCompletedButton");
+const usernameInput = document.getElementById("usernameInput");
+const header = document.querySelector("h1");
 
-    taskForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        addTask();
-    });
-    submitButton.addEventListener("click", addTask);
-    clearButton.addEventListener("click", clearCompletedTasks);
+usernameInput.addEventListener("input", () => {
+    const username = usernameInput.value.trim();
+    header.textContent = username
+        ? `Welcome, ${username}'s To Do Dashboard`
+        : "Welcome to your To Do Dashboard";
 });
 
-function addTask() {
-    const taskInput = document.getElementById("taskInput");
-    const deadlineInput = document.getElementById("deadlineInput");
-    const categoryInput = document.getElementById("categoryInput");
-    const listTasks = document.querySelector(".listTasks");
+const taskForm = document.getElementById("taskForm");
+const submitButton = document.getElementById("submitTaskButton");
+const clearButton = document.getElementById("clearCompletedButton");
 
-    const taskText = taskInput.value.trim();
-    const deadline = deadlineInput.value;
-    const category = categoryInput.value;
-
-    if (taskText === "" || deadline === "") {
-        alert("Please provide valid task details.");
-        return;
+submitButton.addEventListener("click", async (e) => {
+    e.preventDefault();
+    const data = await handleSubmit();
+    if (data) {
+        addTask(data);
     }
+});
 
-    if (category === "Select a category") {
-        alert("Please select a category.");
-        return;
+clearButton.addEventListener("click", clearCompletedTasks);
+
+const addTask = (data) => {
+    if (data) {
+        tasks.push(data);
+        const listTasks = document.querySelector(".listTasks");
+        displayTasks(listTasks);
     }
-
-    tasks.push({
-        taskText,
-        deadline,
-        category,
-        order: tasks.filter(task => task.category === category).length + 1,
-        completed: false,
-    });
-
-    displayTasks(listTasks);
-}
+};
 
 function displayTasks(listTasks) {
     listTasks.innerHTML = "";
 
-    // Group tasks by category
     const groupedTasks = tasks.reduce((acc, task) => {
         if (!acc[task.category]) acc[task.category] = [];
         acc[task.category].push(task);
         return acc;
     }, {});
 
-    // Sort categories alphabetically
     const sortedCategories = Object.keys(groupedTasks).sort();
 
     sortedCategories.forEach((category) => {
@@ -75,7 +61,6 @@ function displayTasks(listTasks) {
             taskDiv.style.alignItems = "center";
             taskDiv.style.marginBottom = "10px";
 
-            // Order input
             const orderInput = document.createElement("input");
             orderInput.type = "number";
             orderInput.value = task.order;
@@ -83,7 +68,6 @@ function displayTasks(listTasks) {
             orderInput.style.width = "50px";
             orderInput.addEventListener("change", () => updateOrder(task, category, orderInput.value));
 
-            // Checkbox for completion
             const checkbox = document.createElement("input");
             checkbox.type = "checkbox";
             checkbox.checked = task.completed;
@@ -93,28 +77,24 @@ function displayTasks(listTasks) {
                 task.completed = checkbox.checked;
                 taskLabel.style.textDecoration = task.completed ? "line-through" : "none";
                 taskLabel.style.color = task.completed ? "gray" : "black";
-                displayTasks(document.querySelector(".listTasks")); // Refresh to update dependencies
+                displayTasks(document.querySelector(".listTasks"));
             });
 
-            // Task label
             const taskLabel = document.createElement("label");
             taskLabel.textContent = task.taskText;
             taskLabel.style.textDecoration = task.completed ? "line-through" : "none";
             taskLabel.style.color = task.completed ? "gray" : "black";
 
-            // Deadline label
             const deadlineLabel = document.createElement("span");
             deadlineLabel.textContent = `Deadline: ${new Date(task.deadline).toLocaleDateString()}`;
             deadlineLabel.style.marginLeft = "10px";
 
-            // Status color button
             const colorButton = document.createElement("button");
             colorButton.textContent = "Status";
             colorButton.disabled = true;
             colorButton.style.marginLeft = "10px";
             updateColor(colorButton, task.deadline);
 
-            // Append elements
             taskDiv.appendChild(orderInput);
             taskDiv.appendChild(checkbox);
             taskDiv.appendChild(taskLabel);
@@ -163,3 +143,38 @@ function clearCompletedTasks() {
     tasks = tasks.filter((task) => !task.completed);
     displayTasks(document.querySelector(".listTasks"));
 }
+
+const handleSubmit = async (e) => {
+    const taskInput = document.getElementById("taskInput");
+    const deadlineInput = document.getElementById("deadlineInput");
+    const categoryInput = document.getElementById("categoryInput");
+    const usernameInput = document.getElementById("usernameInput");
+    const taskText = taskInput.value.trim();
+    const deadline = deadlineInput.value;
+    const category = categoryInput.value;
+    const username = usernameInput.value;
+
+    const objJson = {
+        
+        task: taskText,
+        category: category,
+        date: deadline,
+        username: username,
+        
+    };
+
+    try {
+        let options = {
+            method: "POST",
+            headers: {
+                "Content-type": "application/json",
+            },
+            body: JSON.stringify(objJson),
+        };
+        const res = await fetch("http://localhost:8008/todo/tasks", options);
+        const data = await res.json();
+        return data;
+    } catch (error) {
+        console.log(error);
+    }
+};

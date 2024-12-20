@@ -1,4 +1,5 @@
 let tasks = [];
+const listTasks = document.getElementById("listTasks")
 
 // document.addEventListener("DOMContentLoaded", () => {
     
@@ -9,37 +10,35 @@ let tasks = [];
     usernameInput.addEventListener("input", () => {
     const username = usernameInput.value.trim();
     header.textContent = username
-        ? `Welcome, ${username}\'s To Do Dashboard`
+        ? `Welcome, ${username}'s To Do Dashboard`
         : "Welcome to your To Do Dashboard";
     });
     const taskForm = document.getElementById("taskForm");
     const submitButton = document.getElementById("submitTaskButton");
     const clearButton = document.getElementById("clearCompletedButton");
 
-    submitButton.addEventListener("click", (e) => {
+    submitButton.addEventListener("click", async (e) => {
         e.preventDefault();
-        handleSubmit();
-        addTask();
+        const data = await handleSubmit();
+        if (data) {
+            console.log('data', data)
+            tasks.push(data)
+            console.log('tasks', tasks)
+            displayTasks(listTasks)
+        }
     });
     
     clearButton.addEventListener("click", clearCompletedTasks);
 // });
 
-const addTask = async() =>{        
-//     if (typeof handleSubmit === "function") {
-//     const data = await handleSubmit(); // Call handleSubmit and await the result
-//     console.log(data, "data");
-//     const listTasks = document.querySelector(".listTasks");
+// const addTask = (data) => {
+//     if (data) {
+//         tasks.push(data); // Add the new task to the local tasks array
+//         const listTasks = document.querySelector(".listTasks");
+//         displayTasks(listTasks);
 //     }
-// }
+// };
 
-      if (handleSubmit) {
-        const res = await handleSubmit()
-        console.log(data, "data");
-        
-        const listTasks = document.querySelector(".listTasks");
-    }
-}
 function displayTasks(listTasks) {
         listTasks.innerHTML = "";
 
@@ -49,6 +48,8 @@ function displayTasks(listTasks) {
             acc[task.category].push(task);
             return acc;
         }, {});
+    console.log('groupedTasks', groupedTasks);
+        
 
         // Sort categories alphabetically
         const sortedCategories = Object.keys(groupedTasks).sort();
@@ -189,7 +190,7 @@ const handleSubmit = async (e) => {
     task: taskText,
     category: category,
     date : deadline,
-    username: usernameInput,
+    username: usernameInput.value.trim()
   };
 
   try {
@@ -203,10 +204,8 @@ const handleSubmit = async (e) => {
     const res = await fetch("http://localhost:8008/todo/tasks", options);
     const data = await res.json();
     
-    return data
+    return data;
   } catch (error) {
     console.log(error);
   }
 };
-
-
