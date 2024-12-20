@@ -20,16 +20,17 @@ const tasksPage = (req, res) => {
 
 const getAllTasks = (req, res) => {
     getAllTasksFromDB()
+        
         .then((data) => {
             console.log("Fetched tasks:", data); // Debugging
-            res.json(data);
+            res.json(data)
         })
         .catch((e) => {
             console.error("Error fetching tasks:", e); // Debugging
             res.status(404).json({ msg: "Tasks not found" });
         });
 };
-
+ 
 // const createTasks = (req, res) => {
 //     const { username, task, task_order, category, status, date } = req.body;
 

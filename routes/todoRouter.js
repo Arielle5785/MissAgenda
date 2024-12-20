@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const { 
-    // tasksPage,
+    tasksPage,
     mainPage,
     loginPage,
     registerPage,
@@ -16,7 +16,7 @@ router.get("/tasks/:username", getAllTasks);
 router.get("/home", mainPage);
 router.get("/login", loginPage);
 router.get("/register", registerPage)
-// router.post("/tasks", createTasks)
+router.post("/tasks", tasksPage)
 
 module.exports = {
   todoRouter: router,
