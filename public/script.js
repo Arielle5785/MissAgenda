@@ -144,37 +144,43 @@ function clearCompletedTasks() {
     displayTasks(document.querySelector(".listTasks"));
 }
 
-const handleSubmit = async (e) => {
-    const taskInput = document.getElementById("taskInput");
-    const deadlineInput = document.getElementById("deadlineInput");
-    const categoryInput = document.getElementById("categoryInput");
-    const usernameInput = document.getElementById("usernameInput");
-    const taskText = taskInput.value.trim();
-    const deadline = deadlineInput.value;
-    const category = categoryInput.value;
-    const username = usernameInput.value;
+// const handleSubmit = async (e) => {
+//     const taskInput = document.getElementById("taskInput");
+//     const deadlineInput = document.getElementById("deadlineInput");
+//     const categoryInput = document.getElementById("categoryInput");
+//     const usernameInput = document.getElementById("usernameInput");
+//     const taskText = taskInput.value.trim();
+//     const deadline = deadlineInput.value;
+//     const category = categoryInput.value;
+//     const username = usernameInput.value;
 
-    const objJson = {
+//     const objJson = {
         
-        task: taskText,
-        category: category,
-        date: deadline,
-        username: username,
-        
-    };
+//         task: taskText,
+//         category: category,
+//         date: deadline,
+//         username: username,
 
-    try {
-        let options = {
-            method: "POST",
-            headers: {
-                "Content-type": "application/json",
-            },
-            body: JSON.stringify(objJson),
-        };
-        const res = await fetch("http://localhost:8008/todo/tasks", options);
-        const data = await res.json();
-        return data;
-    } catch (error) {
-        console.log(error);
-    }
-};
+//     };
+
+//     try {
+//         let options = {
+//             method: "POST",
+//             headers: {
+//                 "Content-type": "application/json",
+//             },
+//             body: JSON.stringify(objJson),
+//         };
+//         const res = await fetch("http://localhost:8008/todo/tasks", options);
+//         const data = await res.json();
+//         render(data);
+//     } catch (error) {
+//         console.log(error);
+//     }
+// };
+// const render = (arr) => {
+//   const html = arr.map((item) => {
+//     return (data);
+//   });
+//   document.getElementById("listTasks").innerHTML = html.join("");
+// };

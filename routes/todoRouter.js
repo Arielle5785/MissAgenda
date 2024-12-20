@@ -1,21 +1,22 @@
 const { Router } = require("express");
-const { getAllTasks,
-    createTasks,
+const { 
+    // tasksPage,
     mainPage,
     loginPage,
     registerPage,
+    getAllTasks,
+    
 
 } = require("../controllers/todoController.js");
+const { createTasks} = require("../models/todoModel.js");
 
 const router = Router();
 
-// router.get("/api/todo", getAllTasks );
-// router.delete("/api/todo/:id", deleteTasks);
-// router.put("/api/todo/:id", updateTasks);
-router.post("/tasks", createTasks);
+router.get("/tasks/:username", getAllTasks);
 router.get("/home", mainPage);
-router.post("/login", loginPage);
-router.post("/register",registerPage)
+router.get("/login", loginPage);
+router.get("/register", registerPage)
+// router.post("/tasks", createTasks)
 
 module.exports = {
   todoRouter: router,

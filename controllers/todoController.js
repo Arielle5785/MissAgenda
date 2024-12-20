@@ -1,43 +1,54 @@
 const { db } = require("../config/data.js");
-const { 
-    _createTasks,
-} = require("../models/todoModel.js");
+const { getAllTasksFromDB } = require("../models/todoModel.js");
 const path = require("path");
 
 const mainPage = (req, res) => {
-    res.sendFile(path.join(__dirname, "../public/dashboardIndex.html"))
-}
-const loginPage = (req, res) => {
-    res.sendFile(path.join(__dirname, "../public/login.html"))
-}
-const registerPage = (req, res) => {
-    res.sendFile(path.join(__dirname,"../public/register.html"))
-}
-
-const createTasks = (req, res) => {
-    
-    try {
-        console.log(req.body);
-        const { username, task, task_order, category, status, date } = req.body;
-        const newTask = { id: tasks.length + 1, username, task, task_order, category, status, date };
-        tasks.push(newTask)
-            .then((data) => {
-                res.json({ message: "task inserted in table", data })
-            })
-            .catch((e) => {
-                console.log(e);
-                res.status(500).json({ msg: "something went wrong" })
-            });
-    } catch (e)
-    {console.log(e)};
-    
+    res.sendFile(path.join(__dirname, "../public/main.html"));
 };
 
+const loginPage = (req, res) => {
+    res.sendFile(path.join(__dirname, "../public/login.html"));
+};
+
+const registerPage = (req, res) => {
+    res.sendFile(path.join(__dirname, "../public/register.html"));
+};
+
+const tasksPage = (req, res) => {
+    res.sendFile(path.join(__dirname, "../public/dashboardIndex.html"));
+};
+
+const getAllTasks = (req, res) => {
+    getAllTasksFromDB()
+        .then((data) => {
+            console.log("Fetched tasks:", data); // Debugging
+            res.json(data);
+        })
+        .catch((e) => {
+            console.error("Error fetching tasks:", e); // Debugging
+            res.status(404).json({ msg: "Tasks not found" });
+        });
+};
+
+// const createTasks = (req, res) => {
+//     const { username, task, task_order, category, status, date } = req.body;
+
+//     db("tasks")
+//         .insert({ username, task, task_order, category, status, date })
+//         .then(() => {
+//             res.status(201).json({ message: "Task successfully created" });
+//         })
+//         .catch((e) => {
+//             console.error("Error creating task:", e); // Debugging
+//             res.status(500).json({ msg: "Failed to create task" });
+//         });
+// };
 
 module.exports = {
-    // getAllTasks,
-    createTasks,
+    tasksPage,
     mainPage,
     loginPage,
     registerPage,
-}
+    getAllTasks,
+    // createTasks, 
+};
