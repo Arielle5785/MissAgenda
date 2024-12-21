@@ -1,7 +1,8 @@
-const { getAllTasks } = require("../controllers/todoController");
+// const { getAllTasks } = require("../controllers/todoController");
 
 let tasks = [];
 
+// Handle username input and update header dynamically
 const usernameInput = document.getElementById("usernameInput");
 const header = document.querySelector("h1");
 
@@ -12,27 +13,26 @@ usernameInput.addEventListener("input", () => {
         : "Welcome to your To Do Dashboard";
 });
 
-const taskForm = document.getElementById("taskForm");
 const submitButton = document.getElementById("submitTaskButton");
 const clearButton = document.getElementById("clearCompletedButton");
 
+// Event listener for submitting tasks
 submitButton.addEventListener("click", async (e) => {
     e.preventDefault();
     const data = await handleSubmit();
     if (data) {
-        addTask(data);
+        tasks.push(data);
+        render(tasks);
     }
 });
 
-clearButton.addEventListener("click", clearCompletedTasks);
+// Event listener for clearing completed tasks
+clearButton.addEventListener("click", () => {
+    tasks = tasks.filter((task) => !task.completed);
+    render(tasks);
+});
 
-const addTask = (data) => {
-    if (data) {
-        tasks.push(data);
-        const listTasks = document.querySelector(".listTasks");
-        displayTasks(listTasks);
-    }
-};
+// Function to update task colors based on deadlines
 function updateColor(colorButton, deadline) {
     const today = new Date();
     const deadlineDate = new Date(deadline);
@@ -45,6 +45,8 @@ function updateColor(colorButton, deadline) {
     }
     colorButton.style.color = "white";
 }
+
+// Update task order within categories
 function updateOrder(taskToUpdate, category, newOrder) {
     const taskInCategory = tasks.filter(task => task.category === category);
     const oldOrder = taskToUpdate.order;
@@ -60,78 +62,78 @@ function updateOrder(taskToUpdate, category, newOrder) {
         }
     });
 
-    displayTasks(document.querySelector(".listTasks"));
+    render(tasks);
 }
-function displayTasks(listTasks) {
-    listTasks.innerHTML = ""; // Clear existing tasks
 
-    if (tasks.length === 0) {
-        listTasks.innerHTML = "<p>No tasks available. Add a task to get started!</p>";
+// Render tasks into the browser
+const render = (data) => {
+    const rootElement = document.getElementById("listTasks");
+    rootElement.innerHTML = ""; // Clear previous content
+
+    if (!data || data.length === 0) {
+        rootElement.innerHTML = "<p>No tasks available. Add a task to get started!</p>";
         return;
     }
 
-    const groupedTasks = tasks.reduce((acc, task) => {
+    // Group tasks by category
+    const groupedTasks = data.reduce((acc, task) => {
         if (!acc[task.category]) acc[task.category] = [];
         acc[task.category].push(task);
         return acc;
     }, {});
 
-    const sortedCategories = Object.keys(groupedTasks).sort();
-
-    sortedCategories.forEach((category) => {
-        const categorySection = document.createElement("div");
-        categorySection.setAttribute("data-category", category);
-        categorySection.classList.add("category-section");
+    // Generate HTML for each category and its tasks
+    Object.keys(groupedTasks).forEach((category) => {
+        const categoryDiv = document.createElement("div");
+        categoryDiv.classList.add("category-section");
 
         const categoryHeader = document.createElement("h3");
         categoryHeader.textContent = category;
-        categorySection.appendChild(categoryHeader);
-
-        groupedTasks[category].sort((a, b) => a.taskOrder - b.taskOrder);
+        categoryDiv.appendChild(categoryHeader);
 
         groupedTasks[category].forEach((task) => {
             const taskDiv = document.createElement("div");
             taskDiv.classList.add("task-item");
 
+            // Task description
             const taskDescription = document.createElement("p");
             taskDescription.textContent = `Task: ${task.task}`;
             taskDiv.appendChild(taskDescription);
 
+            // Task order
             const taskOrderInput = document.createElement("input");
             taskOrderInput.type = "number";
             taskOrderInput.value = task.taskOrder;
             taskOrderInput.style.width = "50px";
-            taskOrderInput.addEventListener("change", () =>
-                updateOrder(task, category, taskOrderInput.value)
-            );
+            taskOrderInput.addEventListener("change", () => updateOrder(task, category, taskOrderInput.value));
             taskDiv.appendChild(taskOrderInput);
 
-            const taskStatus = document.createElement("p");
-            taskStatus.textContent = `Status: ${task.status}`;
-            taskDiv.appendChild(taskStatus);
-
+            // Task deadline
             const taskDeadline = document.createElement("p");
-            taskDeadline.textContent = `Deadline: ${task.deadline}`;
+            taskDeadline.textContent = `Deadline: ${new Date(task.deadline).toLocaleDateString()}`;
             taskDiv.appendChild(taskDeadline);
 
+            // Task status
+            const taskStatus = document.createElement("p");
+            taskStatus.textContent = `Status: ${task.status ? "Completed" : "Pending"}`;
+            taskDiv.appendChild(taskStatus);
+
+            // Status color button
             const colorButton = document.createElement("button");
             colorButton.textContent = "Status Color";
             updateColor(colorButton, task.deadline);
             taskDiv.appendChild(colorButton);
 
-            categorySection.appendChild(taskDiv);
+            // Append task to the category
+            categoryDiv.appendChild(taskDiv);
         });
 
-        listTasks.appendChild(categorySection);
+        // Append category to the root element
+        rootElement.appendChild(categoryDiv);
     });
-}
+};
 
-
-function clearCompletedTasks() {
-    tasks = tasks.filter((task) => !task.completed);
-    displayTasks(document.querySelector(".listTasks"));
-}
-
+// Handle task submission
 const handleSubmit = async () => {
     const taskInput = document.getElementById("taskInput");
     const deadlineInput = document.getElementById("deadlineInput");
@@ -161,12 +163,14 @@ const handleSubmit = async () => {
         return data;
     } catch (error) {
         console.log("Error submitting task:", error);
+        return null;
     }
 };
 
+// Initialize tasks on page load
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        const username = "Canelle"; 
+        const username = "Canelle";
         const res = await fetch(`http://localhost:8008/todo/tasks/${username}`);
         if (!res.ok) {
             throw new Error(`Failed to fetch tasks: ${res.status}`);
@@ -179,8 +183,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             status: task.status ? "Completed" : "Pending",
             deadline: new Date(task.date).toISOString().split("T")[0],
         }));
-        const listTasks = document.querySelector("#listTasks");
-        displayTasks(listTasks);
+        render(tasks);
     } catch (error) {
         console.error("Error fetching tasks:", error);
     }

@@ -5,6 +5,7 @@ const {
     loginPage,
     registerPage,
     getAllTasks,
+    createTasksToDB, 
     
 
 } = require("../controllers/todoController.js");
@@ -15,8 +16,10 @@ const router = Router();
 router.get("/tasks/:username", getAllTasks);
 router.get("/home", mainPage);
 router.get("/login", loginPage);
-router.get("/register", registerPage)
-router.post("/tasks", tasksPage)
+router.get("/register", registerPage);
+// router.post("/tasks", tasksPage)
+router.post("/tasks", createTasksToDB);
+
 
 module.exports = {
   todoRouter: router,

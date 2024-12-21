@@ -31,19 +31,20 @@ const getAllTasks = (req, res) => {
         });
 };
  
-// const createTasks = (req, res) => {
-//     const { username, task, task_order, category, status, date } = req.body;
-
-//     db("tasks")
-//         .insert({ username, task, task_order, category, status, date })
-//         .then(() => {
-//             res.status(201).json({ message: "Task successfully created" });
-//         })
-//         .catch((e) => {
-//             console.error("Error creating task:", e); // Debugging
-//             res.status(500).json({ msg: "Failed to create task" });
-//         });
-// };
+const createTasksToDB = (req, res) => {
+    const { username, task, task_order, category, status, date } = req.body;//html
+    console.log(username, task, task_order, category, status, date);
+    db("tasks")
+        .insert({ username, task, task_order, category, status, date })
+        .then(() => {
+            res.status(201).json({ message: "Task successfully created" });
+        }) 
+        
+        .catch((e) => {
+            console.error("Error creating task:", e); // Debugging
+            res.status(500).json({ msg: "Failed to create task" });
+        });
+};
 
 module.exports = {
     tasksPage,
@@ -51,5 +52,5 @@ module.exports = {
     loginPage,
     registerPage,
     getAllTasks,
-    // createTasks, 
+    createTasksToDB, 
 };
